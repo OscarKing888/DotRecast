@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DotRecast.Tool.ValidateNavMesh": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\prj\\a.bin"
+    }
+  }
+}
