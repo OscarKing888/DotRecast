@@ -30,6 +30,14 @@ namespace UE4RecastHelper
         // there's a 4-byte padding after dataSize (C struct alignment)
     };
 
+    // C# 对应的结构体（用于 WriteTiles 函数，与 C# DotRecast.Detour.Io.NavMeshTileHeader 对应）
+    // 对应 C#: public struct NavMeshTileHeader { public long tileRef; public int dataSize; }
+    struct NavMeshTileHeaderCshp
+    {
+        int64_t tileRef;    // C# 中的 long 类型，64 位有符号整数
+        int32_t dataSize;   // C# 中的 int 类型，32 位有符号整数
+    };
+
     // Magic and version constants
     static const int NAVMESHSET_MAGIC = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T'; //'MSET';
     static const int NAVMESHSET_VERSION = 1;

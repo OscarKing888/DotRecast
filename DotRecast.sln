@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotRecast.Tool.Benchmark", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotRecast.Tool.ValidateNavMesh", "tool\DotRecast.Tool.ValidateNavMesh\DotRecast.Tool.ValidateNavMesh.csproj", "{A3B4C5D6-E7F8-9012-3456-789ABCDEF012}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotRecast.Tool.NavMeshViewer", "tool\DotRecast.Tool.NavMeshViewer\DotRecast.Tool.NavMeshViewer.csproj", "{B4C5D6E7-F8A9-0123-4567-89ABCDEF0123}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -132,6 +134,10 @@ Global
 		{A3B4C5D6-E7F8-9012-3456-789ABCDEF012}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3B4C5D6-E7F8-9012-3456-789ABCDEF012}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3B4C5D6-E7F8-9012-3456-789ABCDEF012}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4C5D6E7-F8A9-0123-4567-89ABCDEF0123}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4C5D6E7-F8A9-0123-4567-89ABCDEF0123}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4C5D6E7-F8A9-0123-4567-89ABCDEF0123}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4C5D6E7-F8A9-0123-4567-89ABCDEF0123}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FFE40BBF-843B-41FA-8504-F4ABD166762E} = {8ED75CF7-A3D6-423D-8499-9316DD413DAD}
@@ -153,5 +159,6 @@ Global
 		{D1EFC625-D095-4208-98A2-112B73CB40B0} = {A7CB8D8B-70DA-4567-8316-0659FCAE1C73}
 		{1822BBA8-FE4E-4C5F-B9C0-3E20E6353446} = {9C213609-BF13-4024-816E-A6ADD641DF24}
 		{A3B4C5D6-E7F8-9012-3456-789ABCDEF012} = {9C213609-BF13-4024-816E-A6ADD641DF24}
+		{B4C5D6E7-F8A9-0123-4567-89ABCDEF0123} = {9C213609-BF13-4024-816E-A6ADD641DF24}
 	EndGlobalSection
 EndGlobal

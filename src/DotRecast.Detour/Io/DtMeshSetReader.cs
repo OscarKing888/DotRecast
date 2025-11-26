@@ -17,6 +17,7 @@ freely, subject to the following restrictions:
 */
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using DotRecast.Core;
 
@@ -134,7 +135,16 @@ namespace DotRecast.Detour.Io
                 }
 
                 DtMeshData data = meshReader.Read(bb, mesh.GetMaxVertsPerPoly(), is32Bit);
-                mesh.AddTile(data, i, tileHeader.tileRef, out _);
+                //mesh.AddTile(data, i, tileHeader.tileRef, out _);
+                var status = mesh.AddTile(data, i, tileHeader.tileRef, out _);
+                if (status.Failed())
+                {
+                    Debug.Assert(false);
+                    throw new IOException(
+                        $"AddTile failed: status={status} , tileIdx={i}, " +
+                        $"tileRef=0x{tileHeader.tileRef:X}, " +
+                        $"polyCount={data.header.polyCount}, vertCount={data.header.vertCount}");
+                }
             }
         }
 
