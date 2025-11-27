@@ -34,15 +34,8 @@ public class RecastDebugDraw : DebugDraw
     public const int DU_DRAWNAVMESH_CLOSEDLIST = 0x02;
     public const int DU_DRAWNAVMESH_COLOR_TILES = 0x04;
 
-    private float _navMeshScale = 1.0f;
-
     public RecastDebugDraw(GL gl) : base(gl)
     {
-    }
-
-    public void SetNavMeshScale(float scale)
-    {
-        _navMeshScale = scale;
     }
 
     public void DebugDrawTriMeshSlope(float[] verts, int[] tris, float[] normals, float walkableSlopeAngle, float texScale)
@@ -195,24 +188,12 @@ public class RecastDebugDraw : DebugDraw
 
                 DtOffMeshConnection con = tile.data.offMeshCons[i - tile.data.header.offMeshBase];
                 RcVec3f va = new RcVec3f(
-                    tile.data.verts[p.verts[0] * 3] * _navMeshScale, 
-                    tile.data.verts[p.verts[0] * 3 + 1] * _navMeshScale,
-                    tile.data.verts[p.verts[0] * 3 + 2] * _navMeshScale
+                    tile.data.verts[p.verts[0] * 3], tile.data.verts[p.verts[0] * 3 + 1],
+                    tile.data.verts[p.verts[0] * 3 + 2]
                 );
                 RcVec3f vb = new RcVec3f(
-                    tile.data.verts[p.verts[1] * 3] * _navMeshScale, 
-                    tile.data.verts[p.verts[1] * 3 + 1] * _navMeshScale,
-                    tile.data.verts[p.verts[1] * 3 + 2] * _navMeshScale
-                );
-                RcVec3f conPos0 = new RcVec3f(
-                    con.pos[0].X * _navMeshScale,
-                    con.pos[0].Y * _navMeshScale,
-                    con.pos[0].Z * _navMeshScale
-                );
-                RcVec3f conPos1 = new RcVec3f(
-                    con.pos[1].X * _navMeshScale,
-                    con.pos[1].Y * _navMeshScale,
-                    con.pos[1].Z * _navMeshScale
+                    tile.data.verts[p.verts[1] * 3], tile.data.verts[p.verts[1] * 3 + 1],
+                    tile.data.verts[p.verts[1] * 3 + 2]
                 );
 
                 // Check to see if start and end end-points have links.
@@ -233,27 +214,27 @@ public class RecastDebugDraw : DebugDraw
 
                 // End points and their on-mesh locations.
                 Vertex(va.X, va.Y, va.Z, col);
-                Vertex(conPos0, col);
+                Vertex(con.pos[0], col);
                 col2 = startSet ? col : DuRGBA(220, 32, 16, 196);
-                AppendCircle(conPos0.X, conPos0.Y + 0.1f * _navMeshScale, conPos0.Z, con.rad * _navMeshScale, col2);
+                AppendCircle(con.pos[0].X, con.pos[0].Y + 0.1f, con.pos[0].Z, con.rad, col2);
 
                 Vertex(vb.X, vb.Y, vb.Z, col);
-                Vertex(conPos1, col);
+                Vertex(con.pos[1], col);
                 col2 = endSet ? col : DuRGBA(220, 32, 16, 196);
-                AppendCircle(conPos1.X, conPos1.Y + 0.1f * _navMeshScale, conPos1.Z, con.rad * _navMeshScale, col2);
+                AppendCircle(con.pos[1].X, con.pos[1].Y + 0.1f, con.pos[1].Z, con.rad, col2);
 
                 // End point vertices.
-                Vertex(conPos0, DuRGBA(0, 48, 64, 196));
-                Vertex(conPos0.X, conPos0.Y + 0.2f * _navMeshScale, conPos0.Z, DuRGBA(0, 48, 64, 196));
+                Vertex(con.pos[0], DuRGBA(0, 48, 64, 196));
+                Vertex(con.pos[0].X, con.pos[0].Y + 0.2f, con.pos[0].Z, DuRGBA(0, 48, 64, 196));
 
-                Vertex(conPos1, DuRGBA(0, 48, 64, 196));
-                Vertex(conPos1.X, conPos1.Y + 0.2f * _navMeshScale, conPos1.Z, DuRGBA(0, 48, 64, 196));
+                Vertex(con.pos[1], DuRGBA(0, 48, 64, 196));
+                Vertex(con.pos[1].X, con.pos[1].Y + 0.2f, con.pos[1].Z, DuRGBA(0, 48, 64, 196));
 
                 // Connection arc.
                 AppendArc(
-                    conPos0.X, conPos0.Y, conPos0.Z,
-                    conPos1.X, conPos1.Y, conPos1.Z,
-                    0.25f * _navMeshScale, (con.flags & 1) != 0 ? 0.6f : 0, 0.6f, col);
+                    con.pos[0].X, con.pos[0].Y, con.pos[0].Z,
+                    con.pos[1].X, con.pos[1].Y, con.pos[1].Z,
+                    0.25f, (con.flags & 1) != 0 ? 0.6f : 0, 0.6f, col);
             }
 
             End();
@@ -264,9 +245,7 @@ public class RecastDebugDraw : DebugDraw
         for (int i = 0; i < tile.data.header.vertCount; i++)
         {
             int v = i * 3;
-            Vertex(tile.data.verts[v] * _navMeshScale, 
-                tile.data.verts[v + 1] * _navMeshScale, 
-                tile.data.verts[v + 2] * _navMeshScale, vcol);
+            Vertex(tile.data.verts[v], tile.data.verts[v + 1], tile.data.verts[v + 2], vcol);
         }
 
         End();
@@ -288,15 +267,14 @@ public class RecastDebugDraw : DebugDraw
                     int v = tile.data.detailTris[t + k];
                     if (v < p.vertCount)
                     {
-                        Vertex(tile.data.verts[p.verts[v] * 3] * _navMeshScale, 
-                            tile.data.verts[p.verts[v] * 3 + 1] * _navMeshScale,
-                            tile.data.verts[p.verts[v] * 3 + 2] * _navMeshScale, col);
+                        Vertex(tile.data.verts[p.verts[v] * 3], tile.data.verts[p.verts[v] * 3 + 1],
+                            tile.data.verts[p.verts[v] * 3 + 2], col);
                     }
                     else
                     {
-                        Vertex(tile.data.detailVerts[(pd.vertBase + v - p.vertCount) * 3] * _navMeshScale,
-                            tile.data.detailVerts[(pd.vertBase + v - p.vertCount) * 3 + 1] * _navMeshScale,
-                            tile.data.detailVerts[(pd.vertBase + v - p.vertCount) * 3 + 2] * _navMeshScale, col);
+                        Vertex(tile.data.detailVerts[(pd.vertBase + v - p.vertCount) * 3],
+                            tile.data.detailVerts[(pd.vertBase + v - p.vertCount) * 3 + 1],
+                            tile.data.detailVerts[(pd.vertBase + v - p.vertCount) * 3 + 2], col);
                     }
                 }
             }
@@ -305,14 +283,12 @@ public class RecastDebugDraw : DebugDraw
         {
             for (int j = 1; j < p.vertCount - 1; ++j)
             {
-                Vertex(tile.data.verts[p.verts[0] * 3] * _navMeshScale, 
-                    tile.data.verts[p.verts[0] * 3 + 1] * _navMeshScale,
-                    tile.data.verts[p.verts[0] * 3 + 2] * _navMeshScale, col);
+                Vertex(tile.data.verts[p.verts[0] * 3], tile.data.verts[p.verts[0] * 3 + 1],
+                    tile.data.verts[p.verts[0] * 3 + 2], col);
                 for (int k = 0; k < 2; ++k)
                 {
-                    Vertex(tile.data.verts[p.verts[j + k] * 3] * _navMeshScale, 
-                        tile.data.verts[p.verts[j + k] * 3 + 1] * _navMeshScale,
-                        tile.data.verts[p.verts[j + k] * 3 + 2] * _navMeshScale, col);
+                    Vertex(tile.data.verts[p.verts[j + k] * 3], tile.data.verts[p.verts[j + k] * 3 + 1],
+                        tile.data.verts[p.verts[j + k] * 3 + 2], col);
                 }
             }
         }
@@ -379,14 +355,13 @@ public class RecastDebugDraw : DebugDraw
                 }
 
                 var v0 = new RcVec3f(
-                    tile.data.verts[p.verts[j] * 3] * _navMeshScale, 
-                    tile.data.verts[p.verts[j] * 3 + 1] * _navMeshScale,
-                    tile.data.verts[p.verts[j] * 3 + 2] * _navMeshScale
+                    tile.data.verts[p.verts[j] * 3], tile.data.verts[p.verts[j] * 3 + 1],
+                    tile.data.verts[p.verts[j] * 3 + 2]
                 );
                 var v1 = new RcVec3f(
-                    tile.data.verts[p.verts[(j + 1) % nj] * 3] * _navMeshScale,
-                    tile.data.verts[p.verts[(j + 1) % nj] * 3 + 1] * _navMeshScale,
-                    tile.data.verts[p.verts[(j + 1) % nj] * 3 + 2] * _navMeshScale
+                    tile.data.verts[p.verts[(j + 1) % nj] * 3],
+                    tile.data.verts[p.verts[(j + 1) % nj] * 3 + 1],
+                    tile.data.verts[p.verts[(j + 1) % nj] * 3 + 2]
                 );
 
                 // Draw detail mesh edges which align with the actual poly edge.
@@ -403,17 +378,17 @@ public class RecastDebugDraw : DebugDraw
                             if (v < p.vertCount)
                             {
                                 tv[m] = new RcVec3f(
-                                    tile.data.verts[p.verts[v] * 3] * _navMeshScale,
-                                    tile.data.verts[p.verts[v] * 3 + 1] * _navMeshScale,
-                                    tile.data.verts[p.verts[v] * 3 + 2] * _navMeshScale
+                                    tile.data.verts[p.verts[v] * 3],
+                                    tile.data.verts[p.verts[v] * 3 + 1],
+                                    tile.data.verts[p.verts[v] * 3 + 2]
                                 );
                             }
                             else
                             {
                                 tv[m] = new RcVec3f(
-                                    tile.data.detailVerts[(pd.vertBase + (v - p.vertCount)) * 3] * _navMeshScale,
-                                    tile.data.detailVerts[(pd.vertBase + (v - p.vertCount)) * 3 + 1] * _navMeshScale,
-                                    tile.data.detailVerts[(pd.vertBase + (v - p.vertCount)) * 3 + 2] * _navMeshScale
+                                    tile.data.detailVerts[(pd.vertBase + (v - p.vertCount)) * 3],
+                                    tile.data.detailVerts[(pd.vertBase + (v - p.vertCount)) * 3 + 1],
+                                    tile.data.detailVerts[(pd.vertBase + (v - p.vertCount)) * 3 + 2]
                                 );
                             }
                         }
@@ -491,12 +466,12 @@ public class RecastDebugDraw : DebugDraw
             }
 
             AppendBoxWire(
-                (tile.data.header.bmin.X + n.bmin.X * cs) * _navMeshScale, 
-                (tile.data.header.bmin.Y + n.bmin.Y * cs) * _navMeshScale,
-                (tile.data.header.bmin.Z + n.bmin.Z * cs) * _navMeshScale, 
-                (tile.data.header.bmin.X + n.bmax.X * cs) * _navMeshScale,
-                (tile.data.header.bmin.Y + n.bmax.Y * cs) * _navMeshScale, 
-                (tile.data.header.bmin.Z + n.bmax.Z * cs) * _navMeshScale,
+                tile.data.header.bmin.X + n.bmin.X * cs, 
+                tile.data.header.bmin.Y + n.bmin.Y * cs,
+                tile.data.header.bmin.Z + n.bmin.Z * cs, 
+                tile.data.header.bmin.X + n.bmax.X * cs,
+                tile.data.header.bmin.Y + n.bmax.Y * cs, 
+                tile.data.header.bmin.Z + n.bmax.Z * cs,
                 DuRGBA(255, 255, 255, 128));
         }
 
@@ -1321,9 +1296,9 @@ public class RecastDebugDraw : DebugDraw
 
             // Connection arc.
             AppendArc(
-                con.pos[0].X * _navMeshScale, con.pos[0].Y * _navMeshScale, con.pos[0].Z * _navMeshScale,
-                con.pos[1].X * _navMeshScale, con.pos[1].Y * _navMeshScale, con.pos[1].Z * _navMeshScale,
-                0.25f * _navMeshScale, (con.flags & 1) != 0 ? 0.6f : 0.0f, 0.6f, c);
+                con.pos[0].X, con.pos[0].Y, con.pos[0].Z,
+                con.pos[1].X, con.pos[1].Y, con.pos[1].Z,
+                0.25f, (con.flags & 1) != 0 ? 0.6f : 0.0f, 0.6f, c);
 
             End();
         }
@@ -1374,51 +1349,50 @@ public class RecastDebugDraw : DebugDraw
 
                     // Create new links
                     var va = new RcVec3f(
-                        tile.data.verts[poly.verts[j] * 3] * _navMeshScale,
-                        tile.data.verts[poly.verts[j] * 3 + 1] * _navMeshScale, 
-                        tile.data.verts[poly.verts[j] * 3 + 2] * _navMeshScale
+                        tile.data.verts[poly.verts[j] * 3],
+                        tile.data.verts[poly.verts[j] * 3 + 1], tile.data.verts[poly.verts[j] * 3 + 2]
                     );
                     var vb = new RcVec3f(
-                        tile.data.verts[poly.verts[(j + 1) % nv] * 3] * _navMeshScale,
-                        tile.data.verts[poly.verts[(j + 1) % nv] * 3 + 1] * _navMeshScale,
-                        tile.data.verts[poly.verts[(j + 1) % nv] * 3 + 2] * _navMeshScale
+                        tile.data.verts[poly.verts[(j + 1) % nv] * 3],
+                        tile.data.verts[poly.verts[(j + 1) % nv] * 3 + 1],
+                        tile.data.verts[poly.verts[(j + 1) % nv] * 3 + 2]
                     );
 
                     if (side == 0 || side == 4)
                     {
                         int col = side == 0 ? DuRGBA(128, 0, 0, 128) : DuRGBA(128, 0, 128, 128);
 
-                        float x = va.X + ((side == 0) ? -padx * _navMeshScale : padx * _navMeshScale);
+                        float x = va.X + ((side == 0) ? -padx : padx);
 
-                        Vertex(x, va.Y - pady * _navMeshScale, va.Z, col);
-                        Vertex(x, va.Y + pady * _navMeshScale, va.Z, col);
+                        Vertex(x, va.Y - pady, va.Z, col);
+                        Vertex(x, va.Y + pady, va.Z, col);
 
-                        Vertex(x, va.Y + pady * _navMeshScale, va.Z, col);
-                        Vertex(x, vb.Y + pady * _navMeshScale, vb.Z, col);
+                        Vertex(x, va.Y + pady, va.Z, col);
+                        Vertex(x, vb.Y + pady, vb.Z, col);
 
-                        Vertex(x, vb.Y + pady * _navMeshScale, vb.Z, col);
-                        Vertex(x, vb.Y - pady * _navMeshScale, vb.Z, col);
+                        Vertex(x, vb.Y + pady, vb.Z, col);
+                        Vertex(x, vb.Y - pady, vb.Z, col);
 
-                        Vertex(x, vb.Y - pady * _navMeshScale, vb.Z, col);
-                        Vertex(x, va.Y - pady * _navMeshScale, va.Z, col);
+                        Vertex(x, vb.Y - pady, vb.Z, col);
+                        Vertex(x, va.Y - pady, va.Z, col);
                     }
                     else if (side == 2 || side == 6)
                     {
                         int col = side == 2 ? DuRGBA(0, 128, 0, 128) : DuRGBA(0, 128, 128, 128);
 
-                        float z = va.Z + ((side == 2) ? -padx * _navMeshScale : padx * _navMeshScale);
+                        float z = va.Z + ((side == 2) ? -padx : padx);
 
-                        Vertex(va.X, va.Y - pady * _navMeshScale, z, col);
-                        Vertex(va.X, va.Y + pady * _navMeshScale, z, col);
+                        Vertex(va.X, va.Y - pady, z, col);
+                        Vertex(va.X, va.Y + pady, z, col);
 
-                        Vertex(va.X, va.Y + pady * _navMeshScale, z, col);
-                        Vertex(vb.X, vb.Y + pady * _navMeshScale, z, col);
+                        Vertex(va.X, va.Y + pady, z, col);
+                        Vertex(vb.X, vb.Y + pady, z, col);
 
-                        Vertex(vb.X, vb.Y + pady * _navMeshScale, z, col);
-                        Vertex(vb.X, vb.Y - pady * _navMeshScale, z, col);
+                        Vertex(vb.X, vb.Y + pady, z, col);
+                        Vertex(vb.X, vb.Y - pady, z, col);
 
-                        Vertex(vb.X, vb.Y - pady * _navMeshScale, z, col);
-                        Vertex(va.X, va.Y - pady * _navMeshScale, z, col);
+                        Vertex(vb.X, vb.Y - pady, z, col);
+                        Vertex(va.X, va.Y - pady, z, col);
                     }
                 }
             }

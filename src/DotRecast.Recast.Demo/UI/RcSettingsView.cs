@@ -45,6 +45,8 @@ public class RcSettingsView : IRcView
     public bool RenderAsLeftHanded => _renderAsLeftHanded;
     private bool _renderAsLeftHanded = false;
 
+    private float _navMeshScale = 1.0f;
+
     private DemoSample _sample;
     private RcCanvas _canvas;
 
@@ -228,6 +230,11 @@ public class RcSettingsView : IRcView
         DrawMode.Values.ForEach(dm => { ImGui.RadioButton(dm.Text, ref drawMode, dm.Idx); });
         ImGui.NewLine();
 
+        ImGui.Text("NavMesh Scale");
+        ImGui.Separator();
+        ImGui.SliderFloat("Scale", ref _navMeshScale, 0.01f, 10.0f, "%.2f");
+        ImGui.NewLine();
+
         ImGui.Separator();
         ImGui.Text("Tick 'Keep Itermediate Results'");
         ImGui.Text("rebuild some tiles to see");
@@ -267,5 +274,10 @@ public class RcSettingsView : IRcView
     public void SetMaxPolys(int maxPolys)
     {
         this.maxPolys = maxPolys;
+    }
+
+    public float GetNavMeshScale()
+    {
+        return _navMeshScale;
     }
 }

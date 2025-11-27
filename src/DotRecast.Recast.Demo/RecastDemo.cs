@@ -632,6 +632,7 @@ public class RecastDemo : IRecastDemoChannel
     {
         // Clear the screen
         dd.SetAsRenderLeftHanded(settingsView.RenderAsLeftHanded);
+        dd.SetNavMeshScale(settingsView.GetNavMeshScale());
         dd.Clear();
         dd.ProjectionMatrix(50f, (float)width / (float)height, 1.0f, camr).CopyTo(projectionMatrix);
         dd.ViewMatrix(cameraPos, cameraEulers).CopyTo(modelviewMatrix);
